@@ -1,0 +1,46 @@
+version: '3.7'
+
+name: react-rust-postgres
+
+services:
+  
+ 
+  backend:
+    build:
+      context: backend
+      target: development
+    environment:
+      - ADDRESS=0.0.0.0:8001
+      - RUST_LOG=debug
+      - PG_DBNAME=postgres
+      - PG_HOST=db
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+    networks:
+      - server-side
+    volumes:
+      - ./backend/src:/code/src
+      - backend-cache:/code/target
+    ports:
+      - 8001:8001
+    depends_on:
+      - db
+
+  db:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - server-side
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+networks:
+  server-side: {}
+
+volumes:
+  backend-cache: {}
+  db-data: {}
